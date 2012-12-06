@@ -10,7 +10,7 @@ Input backslash and name of unicode symbol:
 <pre>
 \forall
 </pre>
-and it will be automatically converted to ∀
+then insert space and text will be automatically converted to ∀
 
 To explicitly convert (or convert back) use command 'UnicodeMath: Swap'
 

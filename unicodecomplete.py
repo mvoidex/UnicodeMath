@@ -13,7 +13,8 @@ def get_line_contents(view, location):
     """
     return view.substr(sublime.Region(view.line(location).a, location))
 
-UNICODE_RE = re.compile(r'.*\\([^\s]+)$')
+UNICODE_RE = re.compile(r'.*\\([^\s]+)\s$')
+UNICODE_PREFIX_RE = re.compile(r'.*\\([^\s]+)$')
 
 def get_unicode_prefix(view, location):
     """
@@ -24,26 +25,33 @@ def get_unicode_prefix(view, location):
     res = UNICODE_RE.match(cts)
     if res:
         (pref_,) = res.groups()
-        return (pref_, sublime.Region(location - len(pref_) - 1, location))
+        return (pref_, sublime.Region(location - len(pref_) - 2, location))
     else:
         return None
 
+def is_unicode_prefix(view, location):
+    """
+    Returns True if prefix at given location is prefixed with backslash
+    """
+    cts = get_line_contents(view, location)
+    return UNICODE_PREFIX_RE.match(cts) != None
+
 class UnicodeMathComplete(sublime_plugin.EventListener):
     supress_replace = False
-        
+
     def on_query_completions(self, view, prefix, locations):
         # is prefix starts with '\\'
-        is_unicode = get_unicode_prefix(view, locations[0])
-        if not is_unicode:
+        if not is_unicode_prefix(view, locations[0]):
             return
 
         # returns completions
-        return [(k, k) for k in filter(lambda s: s.startswith(prefix), maths)]
+        return [(k, k + ' ') for k in filter(lambda s: s.startswith(prefix), maths.keys())]
 
     def on_modified(self, view):
         if UnicodeMathComplete.supress_replace:
             UnicodeMathComplete.supress_replace = False
             return
+
         edit = view.begin_edit()
         try:
             for r in view.sel():
@@ -57,18 +65,21 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
         finally:
             view.end_edit(edit)
 
+    def on_selection_modified(self, view):
+        pass
+
 class UnicodeMathSwap(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
-            w = self.view.word(r)
-            usym = self.view.substr(w)
-            if usym in inverse_maths:
-                UnicodeMathComplete.supress_replace = True
-                self.view.replace(edit, w, u'\\' + inverse_maths[usym])
-            else:
-                upref = get_unicode_prefix(self.view, w.b)
-                if upref and upref[0] in maths:
-                    self.view.replace(edit, upref[1], maths[upref[0]])
+            upref = get_unicode_prefix(self.view, self.view.word(r).b)
+            if upref and upref[0] in maths:
+                self.view.replace(edit, upref[1], maths[upref[0]])
+            elif r.b - r.a <= 1:
+                u = sublime.Region(r.b - 1, r.b)
+                usym = self.view.substr(u)
+                if usym in inverse_maths:
+                    UnicodeMathComplete.supress_replace = True
+                    self.view.replace(edit, u, u'\\' + inverse_maths[usym])
 
 class UnicodeMathInsert(sublime_plugin.WindowCommand):
     def run(self):
