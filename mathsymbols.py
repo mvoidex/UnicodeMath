@@ -2451,7 +2451,9 @@ synonims = {
     "=>": "Rightarrow",
     "lambda": "uplambda",
     "o": "vysmwhtcircle",
-    "x": "times"
+    "x": "times",
+    "and": "wedge",
+    "or": "vee"
 }
 
 inverse_synonims = {}
