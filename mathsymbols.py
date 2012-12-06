@@ -2448,7 +2448,10 @@ inverse_maths = dict((v,k) for k, v in maths.iteritems())
 synonims = {
     "all": "forall",
     "->": "rightarrow",
-    "=>": "Rightarrow"
+    "=>": "Rightarrow",
+    "lambda": "uplambda",
+    "o": "vysmwhtcircle",
+    "x": "times"
 }
 
 inverse_synonims = {}
