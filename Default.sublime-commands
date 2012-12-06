@@ -1,0 +1,10 @@
+[
+    {
+        "caption": "UnicodeMath: Swap",
+        "command": "unicode_math_swap"
+    },
+    {
+        "caption": "UnicodeMath: Insert",
+        "command": "unicode_math_insert"
+    }
+]
