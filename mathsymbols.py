@@ -2490,11 +2490,15 @@ synonims = {
     "all": "forall",
     "->": "rightarrow",
     "=>": "Rightarrow",
+    "==>": "Rrightarrow",
     "lambda": "uplambda",
     "o": "vysmwhtcircle",
     "x": "times",
     "and": "wedge",
-    "or": "vee"
+    "or": "vee",
+    "<-": "leftarrow",
+    "<=": "Leftarrow",
+    "<==": "Lleftarrow"
 }
 
 inverse_synonims = {}
