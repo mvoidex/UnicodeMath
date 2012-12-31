@@ -2481,7 +2481,9 @@ maths = {
     "_n": u"\u2099",
     "_p": u"\u209A",
     "_s": u"\u209B",
-    "_t": u"\u209C"
+    "_t": u"\u209C",
+
+    "--": u"\u2014"
 }
 
 inverse_maths = dict((v,k) for k, v in maths.iteritems())
