@@ -2500,7 +2500,12 @@ synonims = {
     "or": "vee",
     "<-": "leftarrow",
     "<=": "Leftarrow",
-    "<==": "Lleftarrow"
+    "<==": "Lleftarrow",
+    "<->": "leftrightarrow",
+    "<=>": "Leftrightarrow",
+    "::": "Colon",
+    "==": "equiv",
+    "===": "Equiv"
 }
 
 inverse_synonims = {}
