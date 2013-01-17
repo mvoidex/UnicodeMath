@@ -1,5 +1,19 @@
 [
     {
+        "caption": "Preferences: UnicodeMath Settings – Default",
+        "command": "open_file", "args":
+        {
+            "file": "${packages}/UnicodeMath/UnicodeMath.sublime-settings"
+        }
+    },
+    {
+        "caption": "Preferences: UnicodeMath Settings – User",
+        "command": "open_file", "args":
+        {
+            "file": "${packages}/User/UnicodeMath.sublime-settings"
+        }
+    },
+    {
         "caption": "UnicodeMath: Swap",
         "command": "unicode_math_swap"
     },

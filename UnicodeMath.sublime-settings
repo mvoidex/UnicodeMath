@@ -1,0 +1,15 @@
+{
+    // Custom symbols
+    // Use it for you symbols, for example:
+    // {
+    //     "mysymbol": "\u0021",
+    //     "myothersymbol": "\u2080"
+    // }
+    "symbols": {},
+    // Custom synonims
+    // Synonims for existing symbol names:
+    // {
+    //     "mys": "mysymbol"
+    // }
+    "synonims": {}
+}
