@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 import re
 
-from mathsymbols import maths, inverse_maths, synonims, inverse_synonims
+from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms
 
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
@@ -61,8 +61,8 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
                     if p:
                         if p[0] in maths:
                             view.replace(edit, p[1], maths[p[0]])
-                        elif p[0] in synonims:
-                            view.replace(edit, p[1], maths[synonims[p[0]]])
+                        elif p[0] in synonyms:
+                            view.replace(edit, p[1], maths[synonyms[p[0]]])
         finally:
             view.end_edit(edit)
 
@@ -90,8 +90,8 @@ class UnicodeMathInsert(sublime_plugin.WindowCommand):
         self.symbols = []
         for k, v in maths.items():
             value = v + ' ' + k
-            if k in inverse_synonims:
-                value += ' ' + ' '.join(inverse_synonims[k])
+            if k in inverse_synonyms:
+                value += ' ' + ' '.join(inverse_synonyms[k])
             self.menu_items.append(value)
             self.symbols.append(v)
 

@@ -6,10 +6,10 @@
     //     "myothersymbol": "\u2080"
     // }
     "symbols": {},
-    // Custom synonims
+    // Custom synonyms
     // Synonims for existing symbol names:
     // {
     //     "mys": "mysymbol"
     // }
-    "synonims": {}
+    "synonyms": {}
 }

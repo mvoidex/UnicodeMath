@@ -2490,7 +2490,7 @@ def make_maths():
     }
     return result
 
-def make_synonims():
+def make_synonyms():
     result = {
         "all": "forall",
         "->": "rightarrow",
@@ -2513,9 +2513,9 @@ def make_synonims():
     return result
 
 maths = {}
-synonims = {}
+synonyms = {}
 inverse_maths = {}
-inverse_synonims = {}
+inverse_synonyms = {}
 
 def get_settings():
     return sublime.load_settings('UnicodeMath.sublime-settings')
@@ -2533,12 +2533,12 @@ def update_inverse_maths():
     global inverse_maths
     inverse_maths = dict((v,k) for k, v in maths.iteritems())
 
-def update_inverse_synonims():
-    global inverse_synonims
-    inverse_synonims = {}
-    for k, v in synonims.iteritems():
-        inverse_synonims[v] = inverse_synonims.get(v, [])
-        inverse_synonims[v].append(k)
+def update_inverse_synonyms():
+    global inverse_synonyms
+    inverse_synonyms = {}
+    for k, v in synonyms.iteritems():
+        inverse_synonyms[v] = inverse_synonyms.get(v, [])
+        inverse_synonyms[v].append(k)
 
 update_and_subscribe(maths, make_maths, update_inverse_maths, 'symbols')
-update_and_subscribe(synonims, make_synonims, update_inverse_synonims, 'synonims')
+update_and_subscribe(synonyms, make_synonyms, update_inverse_synonyms, 'synonyms')
