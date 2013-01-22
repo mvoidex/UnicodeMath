@@ -2542,3 +2542,31 @@ def update_inverse_synonyms():
 
 update_and_subscribe(maths, make_maths, update_inverse_maths, 'symbols')
 update_and_subscribe(synonyms, make_synonyms, update_inverse_synonyms, 'synonyms')
+
+def names_by_symbol(symbol):
+    """
+    Returns list of names by symbol specified, first element is name, others - synonyms
+    If no symbol found, returns empty list
+    """
+    global inverse_maths
+    global inverse_synonyms
+    name = inverse_maths.get(symbol, None)
+    if not name:
+        return None
+    res = [name]
+    if name:
+        res.extend(inverse_synonyms.get(name, []))
+    return res
+
+def symbol_by_name(name):
+    """
+    Returns symbol by name or synonym or None
+
+    """
+    global maths
+    global synonyms
+    if name in maths:
+        return maths[name]
+    if name in synonyms:
+        return maths[synonyms[name]]
+    return None

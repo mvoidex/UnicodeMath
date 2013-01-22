@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 import re
 
-from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms
+from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
 
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
@@ -46,7 +46,7 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
             return
 
         # returns completions
-        return [(k, k + ' ') for k in filter(lambda s: s.startswith(prefix), maths.keys())]
+        return [(k + '\t' + maths[k], k + ' ') for k in filter(lambda s: s.startswith(prefix), maths.keys())]
 
     def on_modified(self, view):
         if UnicodeMathComplete.supress_replace:
@@ -59,10 +59,9 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
                 if r.a == r.b:
                     p = get_unicode_prefix(view, r.a, True)
                     if p:
-                        if p[0] in maths:
-                            view.replace(edit, p[1], maths[p[0]])
-                        elif p[0] in synonyms:
-                            view.replace(edit, p[1], maths[synonyms[p[0]]])
+                        rep = symbol_by_name(p[0])
+                        if rep:
+                            view.replace(edit, p[1], rep)
         finally:
             view.end_edit(edit)
 
@@ -73,16 +72,18 @@ class UnicodeMathSwap(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
             upref = get_unicode_prefix(self.view, self.view.word(r).b, False)
-            if upref and upref[0] in maths:
-                self.view.replace(edit, upref[1], maths[upref[0]])
+            sym = symbol_by_name(upref[0]) if upref else None
+            if upref and sym:
+                self.view.replace(edit, upref[1], sym)
             elif r.b - r.a <= 1:
                 u = sublime.Region(r.b - 1, r.b)
                 usym = self.view.substr(u)
-                if usym in inverse_maths:
-                    UnicodeMathComplete.supress_replace = True
-                    self.view.replace(edit, u, u'\\' + inverse_maths[usym])
-                else:
+                names = names_by_symbol(usym)
+                if not names:
                     self.view.replace(edit, u, u'\\u%04X' % ord(usym))
+                else:
+                    UnicodeMathComplete.supress_replace = True
+                    self.view.replace(edit, u, u'\\' + names[0])
 
 class UnicodeMathInsert(sublime_plugin.WindowCommand):
     def run(self):
