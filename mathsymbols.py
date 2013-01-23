@@ -2490,7 +2490,7 @@ def make_maths():
 
         "check": u"\u2713",
         "Check": u"\u2714",
-        "ballotx": u"\u2712",
+        "ballotx": u"\u2717",
         "Ballotx": u"\u2718"
     }
     return result
