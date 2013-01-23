@@ -2486,7 +2486,12 @@ def make_maths():
         "_s": u"\u209B",
         "_t": u"\u209C",
 
-        "--": u"\u2014"
+        "--": u"\u2014",
+
+        "check": u"\u2713",
+        "Check": u"\u2714",
+        "ballotx": u"\u2712",
+        "Ballotx": u"\u2718"
     }
     return result
 
