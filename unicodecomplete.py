@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 import re
 
-from UnicodeMath.mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
+from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
 
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
@@ -53,21 +53,20 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
             UnicodeMathComplete.supress_replace = False
             return
 
-        view.run_command("unicode_math_convert")
+        edit = view.begin_edit()
+        try:
+            for r in view.sel():
+                if r.a == r.b:
+                    p = get_unicode_prefix(view, r.a, True)
+                    if p:
+                        rep = symbol_by_name(p[0])
+                        if rep:
+                            view.replace(edit, p[1], rep)
+        finally:
+            view.end_edit(edit)
 
     def on_selection_modified(self, view):
         pass
-
-class UnicodeMathConvert(sublime_plugin.TextCommand):
-    def run(self, edit):
-        for r in self.view.sel():
-            if r.a == r.b:
-                p = get_unicode_prefix(self.view, r.a, True)
-                if p:
-                    rep = symbol_by_name(p[0])
-                    if rep:
-                        UnicodeMathComplete.supress_replace = True
-                        self.view.replace(edit, p[1], rep)
 
 class UnicodeMathSwap(sublime_plugin.TextCommand):
     def run(self, edit):
