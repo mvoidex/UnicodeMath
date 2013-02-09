@@ -2574,5 +2574,10 @@ def symbol_by_name(name):
     return None
 
 def plugin_loaded():
+    global maths
+    global synonyms
     update_and_subscribe(maths, make_maths, update_inverse_maths, 'symbols')
     update_and_subscribe(synonyms, make_synonyms, update_inverse_synonyms, 'synonyms')
+
+if int(sublime.version()) < 3000:
+    plugin_loaded()

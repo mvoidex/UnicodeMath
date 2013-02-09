@@ -2,7 +2,10 @@ import sublime
 import sublime_plugin
 import re
 
-from UnicodeMath.mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
+if int(sublime.version()) < 3000:
+    from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
+else:
+    from UnicodeMath.mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
 
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
