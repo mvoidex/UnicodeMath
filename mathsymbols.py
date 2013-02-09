@@ -2536,17 +2536,14 @@ def update_and_subscribe(d, initd, inverse_update, key):
 
 def update_inverse_maths():
     global inverse_maths
-    inverse_maths = dict((v,k) for k, v in maths.iteritems())
+    inverse_maths = dict((v,k) for k, v in maths.items())
 
 def update_inverse_synonyms():
     global inverse_synonyms
     inverse_synonyms = {}
-    for k, v in synonyms.iteritems():
+    for k, v in synonyms.items():
         inverse_synonyms[v] = inverse_synonyms.get(v, [])
         inverse_synonyms[v].append(k)
-
-update_and_subscribe(maths, make_maths, update_inverse_maths, 'symbols')
-update_and_subscribe(synonyms, make_synonyms, update_inverse_synonyms, 'synonyms')
 
 def names_by_symbol(symbol):
     """
@@ -2575,3 +2572,12 @@ def symbol_by_name(name):
     if name in synonyms:
         return maths[synonyms[name]]
     return None
+
+def plugin_loaded():
+    global maths
+    global synonyms
+    update_and_subscribe(maths, make_maths, update_inverse_maths, 'symbols')
+    update_and_subscribe(synonyms, make_synonyms, update_inverse_synonyms, 'synonyms')
+
+if int(sublime.version()) < 3000:
+    plugin_loaded()
