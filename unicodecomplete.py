@@ -18,7 +18,7 @@ def get_line_contents(view, location):
 
 UNICODE_RE = re.compile(r'.*(\\([^\s]+)\s)$')
 UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]+))$')
-SYNTAX_RE = re.compile(r'(.*?)/(?P<name>\w+)\.tmLanguage')
+SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.tmLanguage')
 
 def get_unicode_prefix(view, location, leadspace):
     """
@@ -41,6 +41,23 @@ def is_unicode_prefix(view, location):
     cts = get_line_contents(view, location)
     return UNICODE_PREFIX_RE.match(cts) != None
 
+def can_convert(view):
+    """
+    Determines if there are any regions, where symbol can be converted
+    Used not to call command when it will not convert anything, because such call
+    modified edit, which lead to call of on_modified recursively
+    Some times (is it sublime bug?) on_modified called twice on every change, which makes
+    hard to detect whether this on_modified was called as result of previous call of command
+    """
+    for r in view.sel():
+        if r.a == r.b:
+            p = get_unicode_prefix(view, r.a, True)
+            if p:
+                rep = symbol_by_name(p[0])
+                if rep:
+                    return True
+    return False
+
 class UnicodeMathComplete(sublime_plugin.EventListener):
     supress_replace = False
 
@@ -61,7 +78,8 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
             UnicodeMathComplete.supress_replace = False
             return
 
-        view.run_command("unicode_math_convert")
+        if can_convert(view):
+            view.run_command("unicode_math_convert")
 
     def on_selection_modified(self, view):
         pass
