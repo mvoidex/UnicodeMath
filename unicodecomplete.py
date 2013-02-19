@@ -16,17 +16,16 @@ def get_line_contents(view, location):
     """
     return view.substr(sublime.Region(view.line(location).a, location))
 
-UNICODE_RE = re.compile(r'.*(\\([^\s]+)\s)$')
 UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]+))$')
 SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.tmLanguage')
 
-def get_unicode_prefix(view, location, leadspace):
+def get_unicode_prefix(view, location):
     """
     Returns unicode prefix at given location and it's region
     or None if there is no unicode prefix
     """
     cts = get_line_contents(view, location)
-    RE = UNICODE_RE if leadspace else UNICODE_PREFIX_RE
+    RE = UNICODE_PREFIX_RE
     res = RE.match(cts)
     if res:
         (full_, pref_) = res.groups()
@@ -51,16 +50,24 @@ def can_convert(view):
     """
     for r in view.sel():
         if r.a == r.b:
-            p = get_unicode_prefix(view, r.a, True)
+            p = get_unicode_prefix(view, r.a)
             if p:
                 rep = symbol_by_name(p[0])
                 if rep:
                     return True
     return False
 
-class UnicodeMathComplete(sublime_plugin.EventListener):
-    supress_replace = False
+def syntax_allowed(view):
+    """
+    Returns whether syntax in view is not in ignore list
+    """
+    syntax_in_view = SYNTAX_RE.match(view.settings().get('syntax'))
+    if syntax_in_view and syntax_in_view.group('name').lower() in get_settings().get('ignore_syntax', []):
+        return False
+    return True
 
+
+class UnicodeMathComplete(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
         # is prefix starts with '\\'
         if not is_unicode_prefix(view, locations[0]):
@@ -69,36 +76,29 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
         # returns completions
         return [(k + '\t' + maths[k], k + ' ') for k in filter(lambda s: s.startswith(prefix), maths.keys())]
 
-    def on_modified(self, view):
-        syntax_in_view = SYNTAX_RE.match(view.settings().get('syntax'))
-        if syntax_in_view and syntax_in_view.group('name').lower() in get_settings().get('ignore_syntax', []):
-            return
-
-        if UnicodeMathComplete.supress_replace:
-            UnicodeMathComplete.supress_replace = False
-            return
-
-        if can_convert(view):
-            view.run_command("unicode_math_convert")
-
-    def on_selection_modified(self, view):
-        pass
+    def on_query_context(self, view, key, operator, operand, match_all):
+        if key == 'unicode_math_syntax_allowed':
+            return syntax_allowed(view)
+        elif key == 'unicode_math_can_convert':
+            return can_convert(view)
+        else:
+            return False
 
 class UnicodeMathConvert(sublime_plugin.TextCommand):
     def run(self, edit):
+        log('called!')
         for r in self.view.sel():
             if r.a == r.b:
-                p = get_unicode_prefix(self.view, r.a, True)
+                p = get_unicode_prefix(self.view, r.a)
                 if p:
                     rep = symbol_by_name(p[0])
                     if rep:
-                        UnicodeMathComplete.supress_replace = True
                         self.view.replace(edit, p[1], rep)
 
 class UnicodeMathSwap(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
-            upref = get_unicode_prefix(self.view, self.view.word(r).b, False)
+            upref = get_unicode_prefix(self.view, self.view.word(r).b)
             sym = symbol_by_name(upref[0]) if upref else None
             if upref and sym:
                 self.view.replace(edit, upref[1], sym)
@@ -109,7 +109,6 @@ class UnicodeMathSwap(sublime_plugin.TextCommand):
                 if not names:
                     self.view.replace(edit, u, u'\\u%04X' % ord(usym))
                 else:
-                    UnicodeMathComplete.supress_replace = True
                     self.view.replace(edit, u, u'\\' + names[0])
 
 class UnicodeMathInsert(sublime_plugin.WindowCommand):
