@@ -11,5 +11,7 @@
     // {
     //     "mys": "mysymbol"
     // }
-    "synonyms": {}
+    "synonyms": {},
+    // Syntaxes to ignore
+    "ignore_syntax": ["latex"]
 }

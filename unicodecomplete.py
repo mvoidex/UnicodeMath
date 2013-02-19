@@ -3,9 +3,9 @@ import sublime_plugin
 import re
 
 if int(sublime.version()) < 3000:
-    from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
+    from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol, get_settings
 else:
-    from UnicodeMath.mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol
+    from UnicodeMath.mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol, get_settings
 
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
@@ -18,6 +18,7 @@ def get_line_contents(view, location):
 
 UNICODE_RE = re.compile(r'.*(\\([^\s]+)\s)$')
 UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]+))$')
+SYNTAX_RE = re.compile(r'(.*?)/(?P<name>\w+)\.tmLanguage')
 
 def get_unicode_prefix(view, location, leadspace):
     """
@@ -52,6 +53,10 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
         return [(k + '\t' + maths[k], k + ' ') for k in filter(lambda s: s.startswith(prefix), maths.keys())]
 
     def on_modified(self, view):
+        syntax_in_view = SYNTAX_RE.match(view.settings().get('syntax'))
+        if syntax_in_view and syntax_in_view.group('name').lower() in get_settings().get('ignore_syntax', []):
+            return
+
         if UnicodeMathComplete.supress_replace:
             UnicodeMathComplete.supress_replace = False
             return
