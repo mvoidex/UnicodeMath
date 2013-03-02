@@ -86,7 +86,6 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
 
 class UnicodeMathConvert(sublime_plugin.TextCommand):
     def run(self, edit):
-        log('called!')
         for r in self.view.sel():
             if r.a == r.b:
                 p = get_unicode_prefix(self.view, r.a)
@@ -111,6 +110,14 @@ class UnicodeMathSwap(sublime_plugin.TextCommand):
                 else:
                     self.view.replace(edit, u, u'\\' + names[0])
 
+class UnicodeMathReplaceInView(sublime_plugin.TextCommand):
+    def run(self, edit, replace_with = None):
+        if not replace_with:
+            return
+
+        for r in self.view.sel():
+            self.view.replace(edit, r, replace_with)
+
 class UnicodeMathInsert(sublime_plugin.WindowCommand):
     def run(self):
         self.menu_items = []
@@ -130,7 +137,6 @@ class UnicodeMathInsert(sublime_plugin.WindowCommand):
         view = self.window.active_view()
         if not view:
             return
-        edit = view.begin_edit()
-        for r in view.sel():
-            view.replace(edit, r, self.symbols[idx])
-        view.end_edit(edit)
+
+        view.run_command('unicode_math_replace_in_view', {
+            'replace_with': self.symbols[idx] })
