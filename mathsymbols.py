@@ -2513,7 +2513,13 @@ def make_synonyms():
         "<=>": "Leftrightarrow",
         "::": "Colon",
         "==": "equiv",
-        "===": "Equiv"
+        "===": "Equiv",
+        "=/=": "nequiv",
+        "~==": "cong",
+        "~/==": "ncong",
+        "~=": "simeq",
+        "=~": "eqsim",
+        "~/=": "nsime"
     }
     return result
 
