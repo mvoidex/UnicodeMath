@@ -74,7 +74,9 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
             return
 
         # returns completions
-        return [(k + '\t' + maths[k], k + ' ') for k in filter(lambda s: s.startswith(prefix), maths.keys())]
+        completions = [('\\' + k + '\t' + maths[k], maths[k]) for k in maths.keys() if k.startswith(prefix)]
+        completions.extend([('\\' + k + '\t' + maths[synonyms[k]], maths[synonyms[k]]) for k in synonyms.keys() if k.startswith(prefix)])
+        return completions
 
     def on_query_context(self, view, key, operator, operand, match_all):
         if key == 'unicode_math_syntax_allowed':
