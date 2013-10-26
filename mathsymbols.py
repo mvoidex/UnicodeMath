@@ -2491,7 +2491,9 @@ def make_maths():
         "check": u"\u2713",
         "Check": u"\u2714",
         "ballotx": u"\u2717",
-        "Ballotx": u"\u2718"
+        "Ballotx": u"\u2718",
+
+        "neq": u"\u2260"
     }
     return result
 
@@ -2515,6 +2517,7 @@ def make_synonyms():
         "==": "equiv",
         "===": "Equiv",
         "=/=": "nequiv",
+        "/=": "neq",
         "~==": "cong",
         "~/==": "ncong",
         "~=": "simeq",
