@@ -2494,7 +2494,7 @@ def make_maths():
         "Ballotx": u"\u2718",
 
         "neq": u"\u2260",
-	"degree", u"\u00B0"
+        "degree": u"\u00B0"
     }
     return result
 
