@@ -2493,7 +2493,8 @@ def make_maths():
         "ballotx": u"\u2717",
         "Ballotx": u"\u2718",
 
-        "neq": u"\u2260"
+        "neq": u"\u2260",
+	"degree", u"\u00B0"
     }
     return result
 
