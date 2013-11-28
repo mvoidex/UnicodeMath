@@ -2494,7 +2494,32 @@ def make_maths():
         "Ballotx": u"\u2718",
 
         "neq": u"\u2260",
-        "degree": u"\u00B0"
+        "degree": u"\u00B0",
+
+        # Some interesting symbol sets from unicode-table.com
+        "libra": u"\u264E",
+        "blacksun": u"\u2600",
+        "umbrella": u"\u2602",
+        "blackchessknight": u"\u265E",
+        "yinyang": u"\u262F",
+        "hammersickle": u"\u262D",
+        "radioactive": u"\u2622",
+        "telephone": u"\u260E",
+        "snowflake": u"\u2744",
+        "scissors": u"\u2702",
+
+        "aries": u"\u2648",
+        "taurus": u"\u2649",
+        "gemini": u"\u264A",
+        "cancer": u"\u264B",
+        "leo": u"\u264C",
+        "virgo": u"\u264D",
+        "libra": u"\u264E",
+        "scorpius": u"\u264F",
+        "sagittarius": u"\u2650",
+        "capricorn": u"\u2651",
+        "aquarius": u"\u2652",
+        "pisces": u"\u2653"
     }
     return result
 
