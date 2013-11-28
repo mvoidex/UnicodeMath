@@ -2519,7 +2519,10 @@ def make_maths():
         "sagittarius": u"\u2650",
         "capricorn": u"\u2651",
         "aquarius": u"\u2652",
-        "pisces": u"\u2653"
+        "pisces": u"\u2653",
+
+        # Happy new year 2014
+        "fir": u"\U0001F384"
     }
     return result
 
@@ -2548,7 +2551,9 @@ def make_synonyms():
         "~/==": "ncong",
         "~=": "simeq",
         "=~": "eqsim",
-        "~/=": "nsime"
+        "~/=": "nsime",
+
+        "christmastree": "fir"
     }
     return result
 
