@@ -2527,6 +2527,8 @@ def make_maths():
         "aquarius": u"\u2652",
         "pisces": u"\u2653",
 
+        "trademark": u"\u2122",
+
         # Happy new year 2014
         "fir": u"\U0001F384"
     }
