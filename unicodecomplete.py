@@ -17,6 +17,8 @@ def get_line_contents(view, location):
     return view.substr(sublime.Region(view.line(location).a, location))
 
 UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]+))$')
+CODE_PREFIX_RE = re.compile(r'.*(u([\da-fA-F]{4}))$')
+LONGCODE_PREFIX_RE = re.compile(r'.*(U([\da-fA-F]{8}))')
 SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.tmLanguage')
 
 def get_unicode_prefix(view, location):
@@ -40,6 +42,34 @@ def is_unicode_prefix(view, location):
     cts = get_line_contents(view, location)
     return UNICODE_PREFIX_RE.match(cts) != None
 
+def symbol_by_code(codestr):
+    """
+    Gets symbol by code string 'uXXXX' or 'UXXXXXXXX'
+    """
+    m = CODE_PREFIX_RE.match(codestr)
+    if m:
+        return unichr(int(m.groups()[1], base = 16))
+    m = LONGCODE_PREFIX_RE.match(codestr)
+    if m:
+        u = int(m.groups()[1], base = 16)
+        a = u / 0x0400 + 0xd7c0
+        b = (u & 0x03ff) + 0xdc00
+        return unichr(a) + unichr(b)
+    return None
+
+def code_by_symbol(sym):
+    """
+    Get code string in format 'uXXXX' or 'UXXXXXXXX' by symbol
+    """
+    if len(sym) == 1:
+        return u'u%04X' % ord(sym[0])
+    if len(sym) == 2:
+        a = ord(sym[0])
+        b = ord(sym[1])
+        u = (a - 0xd7c0) * 0x0400 + (b - 0xdc00)
+        return u'U%08X' % u
+    return None
+
 def can_convert(view):
     """
     Determines if there are any regions, where symbol can be converted
@@ -55,6 +85,10 @@ def can_convert(view):
                 rep = symbol_by_name(p[0])
                 if rep:
                     return True
+                if get_settings().get('convert_codes', True):
+                    rep = symbol_by_code(p[0])
+                    if rep:
+                        return True
     return False
 
 def syntax_allowed(view):
@@ -95,20 +129,24 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
                     rep = symbol_by_name(p[0])
                     if rep:
                         self.view.replace(edit, p[1], rep)
+                    rep = symbol_by_code(p[0])
+                    if rep:
+                        self.view.replace(edit, p[1], rep)
 
 class UnicodeMathSwap(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
             upref = get_unicode_prefix(self.view, self.view.word(r).b)
             sym = symbol_by_name(upref[0]) if upref else None
-            if upref and sym:
-                self.view.replace(edit, upref[1], sym)
+            symc = symbol_by_code(upref[0]) if upref else None
+            if upref and (sym or symc):
+                self.view.replace(edit, upref[1], sym or symc)
             elif r.b - r.a <= 1:
                 u = sublime.Region(r.b - 1, r.b)
                 usym = self.view.substr(u)
                 names = names_by_symbol(usym)
                 if not names:
-                    self.view.replace(edit, u, u'\\u%04X' % ord(usym))
+                    self.view.replace(edit, u, u'\\' + code_by_symbol(usym))
                 else:
                     self.view.replace(edit, u, u'\\' + names[0])
 

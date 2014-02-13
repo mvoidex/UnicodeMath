@@ -13,5 +13,7 @@
     // }
     "synonyms": {},
     // Syntaxes to ignore
-    "ignore_syntax": ["latex"]
+    "ignore_syntax": ["latex"],
+    // Convert \uXXXX and \UXXXXXXXX to symbol
+    "convert_codes": true
 }

@@ -12,6 +12,12 @@ Input backslash and name of unicode symbol:
 </pre>
 then insert space and text will be automatically converted to ∀
 
+Hex-code of unicode symbol can be also used in one of these formats:
+<pre>
+\u12ba
+\U0001d7be
+</pre>
+
 To explicitly convert (or convert back) use command 'UnicodeMath: Swap'
 
 To select symbols from list, use command 'UnicodeMath: Insert'
@@ -34,6 +40,18 @@ Synonyms for existing symbols can also be set:
 	"synonyms": {
 		"mys": "mysymbol"
 	}
+</pre>
+
+Disable plugin for specific syntaxes (most common and default is 'latex'):
+
+<pre>
+	"ignore_syntax": ["latex"]
+</pre>
+
+Enable (default) or disable converting hex-codes)
+
+<pre>
+	"convert_codes": true
 </pre>
 
 Now `\mys` will insert the same symbol as `\mysymbol`.
