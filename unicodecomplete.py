@@ -1,14 +1,20 @@
 import sublime
 import sublime_plugin
 import re
+from sys import version
 
 if int(sublime.version()) < 3000:
     from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol, get_settings
 else:
     from UnicodeMath.mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol, get_settings
 
+PyV3 = version[0] == "3"
+
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
+
+def uchr(s):
+    return chr(s) if PyV3 else unichr(s)
 
 def get_line_contents(view, location):
     """
@@ -48,13 +54,13 @@ def symbol_by_code(codestr):
     """
     m = CODE_PREFIX_RE.match(codestr)
     if m:
-        return unichr(int(m.groups()[1], base = 16))
+        return uchr(int(m.groups()[1], base = 16))
     m = LONGCODE_PREFIX_RE.match(codestr)
     if m:
         u = int(m.groups()[1], base = 16)
         a = u / 0x0400 + 0xd7c0
         b = (u & 0x03ff) + 0xdc00
-        return unichr(a) + unichr(b)
+        return uchr(a) + uchr(b)
     return None
 
 def code_by_symbol(sym):
