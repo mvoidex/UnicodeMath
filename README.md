@@ -42,6 +42,8 @@ Synonyms for existing symbols can also be set:
 	}
 </pre>
 
+Now `\mys` will insert the same symbol as `\mysymbol`.
+
 Disable plugin for specific syntaxes (most common and default is 'latex'):
 
 <pre>
@@ -53,5 +55,3 @@ Enable (default) or disable converting hex-codes)
 <pre>
 	"convert_codes": true
 </pre>
-
-Now `\mys` will insert the same symbol as `\mysymbol`.
