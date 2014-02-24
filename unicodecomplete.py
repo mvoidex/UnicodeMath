@@ -58,9 +58,12 @@ def symbol_by_code(codestr):
     m = LONGCODE_PREFIX_RE.match(codestr)
     if m:
         u = int(m.groups()[1], base = 16)
-        a = u / 0x0400 + 0xd7c0
-        b = (u & 0x03ff) + 0xdc00
-        return uchr(a) + uchr(b)
+        if PyV3 or u < 0xFFFF:
+            return uchr(u)
+        else:
+            a = u / 0x0400 + 0xd7c0
+            b = (u & 0x03ff) + 0xdc00
+            return unichr(a) + unichr(b)
     return None
 
 def code_by_symbol(sym):
@@ -68,7 +71,11 @@ def code_by_symbol(sym):
     Get code string in format 'uXXXX' or 'UXXXXXXXX' by symbol
     """
     if len(sym) == 1:
-        return u'u%04X' % ord(sym[0])
+        c = ord(sym[0])
+        if c > 0xFFFF:
+            return u'U%08X' % c
+        else:
+            return u'u%04X' % c
     if len(sym) == 2:
         a = ord(sym[0])
         b = ord(sym[1])
