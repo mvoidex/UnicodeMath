@@ -1,5 +1,7 @@
 import sublime
 
+# Names from https://github.com/wspr/unicode-math/blob/master/unicode-math-table.tex
+
 def make_maths():
     result = {
         "exclam": u"\U00000021",
