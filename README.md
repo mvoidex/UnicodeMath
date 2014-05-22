@@ -51,7 +51,7 @@ Disable plugin for specific syntaxes (most common and default is 'latex'):
 	"ignore_syntax": ["latex"]
 </pre>
 
-Enable (default) or disable converting hex-codes)
+Enable (default) or disable converting hex-codes:
 
 <pre>
 	"convert_codes": true
