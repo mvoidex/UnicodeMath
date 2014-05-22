@@ -1,3 +1,4 @@
 [
-    { "keys": [" "], "context": [ {"key": "unicode_math_syntax_allowed"}, {"key": "unicode_math_can_convert"} ], "command": "unicode_math_convert" }
+    { "keys": [" "], "context": [ {"key": "unicode_math_syntax_allowed"}, {"key": "unicode_math_can_convert"} ], "command": "unicode_math_convert" },
+    { "keys": ["shift+space"], "context": [ {"key": "unicode_math_syntax_allowed"}, {"key": "unicode_math_can_convert"} ], "command": "unicode_math_insert_space" }
 ]

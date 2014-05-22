@@ -11,6 +11,7 @@ Input backslash and name of unicode symbol:
 \forall
 </pre>
 then insert space and text will be automatically converted to ∀
+To insert space use shift+space
 
 Hex-code of unicode symbol can be also used in one of these formats:
 <pre>

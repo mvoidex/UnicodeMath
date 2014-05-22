@@ -146,6 +146,11 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
                     if rep:
                         self.view.replace(edit, p[1], rep)
 
+class UnicodeMathInsertSpace(sublime_plugin.TextCommand):
+    def run(self, edit):
+        for r in self.view.sel():
+            self.view.insert(edit, r.a, " ")
+
 class UnicodeMathSwap(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
