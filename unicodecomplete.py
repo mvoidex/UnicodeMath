@@ -23,6 +23,9 @@ def get_line_contents(view, location):
     return view.substr(sublime.Region(view.line(location).a, location))
 
 UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]+))$')
+LIST_PREFIX_RE = re.compile(r'.*(\\\\([^\s\\]+\\[^\s]+))$')
+LIST_RE = re.compile(r'^(?P<prefix>[^\s\\]+)\\(?P<list>[^\s]+)$')
+UNICODE_LIST_PREFIX_RE = re.compile(r'.*(\\([^\s\\]+)\\([^\s]+))$')
 CODE_PREFIX_RE = re.compile(r'.*(u([\da-fA-F]{4}))$')
 LONGCODE_PREFIX_RE = re.compile(r'.*(U([\da-fA-F]{8}))')
 SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.tmLanguage')
@@ -33,8 +36,7 @@ def get_unicode_prefix(view, location):
     or None if there is no unicode prefix
     """
     cts = get_line_contents(view, location)
-    RE = UNICODE_PREFIX_RE
-    res = RE.match(cts)
+    res = LIST_PREFIX_RE.match(cts) or UNICODE_PREFIX_RE.match(cts)
     if res:
         (full_, pref_) = res.groups()
         return (pref_, sublime.Region(location - len(full_), location))
@@ -92,6 +94,13 @@ def is_script(s):
 def get_script(s):
     return (s[0], list(s[1:]))
 
+def get_list_prefix(s):
+    # prefix\abc -> (prefix, [a, b, c])
+    m = LIST_RE.match(s)
+    if not m:
+        return (None, None)
+    return (m.group('prefix'), list(m.group('list')))
+
 def can_convert(view):
     """
     Determines if there are any regions, where symbol can be converted
@@ -107,6 +116,10 @@ def can_convert(view):
                 rep = symbol_by_name(p[0])
                 if rep:
                     return True
+                (pre, list_chars) = get_list_prefix(p[0])
+                if get_settings().get('convert_list', True) and pre is not None:
+                    if all([symbol_by_name(pre + ch) for ch in list_chars]):
+                        return True
                 if get_settings().get('convert_sub_super', True) and is_script(p[0]):
                     (script_char, chars) = get_script(p[0])
                     if all([symbol_by_name(script_char + ch) for ch in chars]):
@@ -154,6 +167,11 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
                 if p:
                     rep = symbol_by_name(p[0])
                     if rep:
+                        self.view.replace(edit, p[1], rep)
+                        continue
+                    (pre, list_chars) = get_list_prefix(p[0])
+                    if pre is not None:
+                        rep = ''.join([symbol_by_name(pre + ch) for ch in list_chars])
                         self.view.replace(edit, p[1], rep)
                         continue
                     if is_script(p[0]):

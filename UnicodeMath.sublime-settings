@@ -17,5 +17,8 @@
     // Convert \uXXXX and \UXXXXXXXX to symbol
     "convert_codes": true,
     // Convert multichar subscript and superscript \^abc → \^a\^b\^c and \_abc → \_a\_b\_c
-    "convert_sub_super": true
+    "convert_sub_super": true,
+    // List-convert, \\prefix\abc → \prefixa\prefixb\prefixc, for example
+    // \\Bbb\ABC → \BbbA\BbbB\BbbC → 𝔸𝔹ℂ
+    "convert_list": true
 }

@@ -13,6 +13,17 @@ Input backslash and name of unicode symbol:
 then insert space and text will be automatically converted to ∀<br>
 To insert space use `shift+space`
 
+There are also special way to convert subscripts and superscripts with several symbols, just input several symbols after `\_` or `\^`:
+<pre>
+S\^1+2k → S¹⁺²ᵏ
+S\_1+2k → S₁₊₂ₖ
+</pre>
+
+You can also convert list of chars with special prefix via `\\prefix\abc`, which will be equivalent to `\prefixa` `\prefixb` and `\prefixc`, for example:
+<pre>
+\\Bbb\ABCabc → 𝔸𝔹ℂ𝕒𝕓𝕔
+</pre>
+
 Hex-code of unicode symbol can be also used in one of these formats:
 <pre>
 \u12ba
@@ -55,4 +66,16 @@ Enable (default) or disable converting hex-codes:
 
 <pre>
 	"convert_codes": true
+</pre>
+
+Enable (default) or disable converting multichar sub- and superscripts:
+
+<pre>
+	"convert_sub_super": true
+</pre>
+
+Enable (default) or disable converting list of chars with prefix:
+
+<pre>
+	"convert_list": true
 </pre>
