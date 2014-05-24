@@ -22,9 +22,9 @@ def get_line_contents(view, location):
     """
     return view.substr(sublime.Region(view.line(location).a, location))
 
-UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]+))$')
-LIST_PREFIX_RE = re.compile(r'.*(\\\\([^\s\\]+\\[^\s]+))$')
-LIST_RE = re.compile(r'^(?P<prefix>[^\s\\]+)\\(?P<list>[^\s]+)$')
+UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]*))$')
+LIST_PREFIX_RE = re.compile(r'.*(\\\\([^\s\\]+\\[^\s]*))$')
+LIST_RE = re.compile(r'^(?P<prefix>[^\s\\]+)\\(?P<list>[^\s]*)$')
 UNICODE_LIST_PREFIX_RE = re.compile(r'.*(\\([^\s\\]+)\\([^\s]+))$')
 CODE_PREFIX_RE = re.compile(r'.*(u([\da-fA-F]{4}))$')
 LONGCODE_PREFIX_RE = re.compile(r'.*(U([\da-fA-F]{8}))')
@@ -48,7 +48,7 @@ def is_unicode_prefix(view, location):
     Returns True if prefix at given location is prefixed with backslash
     """
     cts = get_line_contents(view, location)
-    return UNICODE_PREFIX_RE.match(cts) != None
+    return (UNICODE_PREFIX_RE.match(cts) is not None) or (LIST_PREFIX_RE.match(cts) is not None)
 
 def symbol_by_code(codestr):
     """
@@ -142,13 +142,23 @@ def syntax_allowed(view):
 
 class UnicodeMathComplete(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
-        # is prefix starts with '\\'
-        if not is_unicode_prefix(view, locations[0]):
+        p = get_unicode_prefix(view, locations[0])
+        if not p:
             return
 
+        log(p[0])
+
+        (pre, list_chars) = get_list_prefix(p[0])
         # returns completions
-        completions = [('\\' + k + '\t' + maths[k], maths[k]) for k in maths.keys() if k.startswith(prefix)]
-        completions.extend([('\\' + k + '\t' + maths[synonyms[k]], maths[synonyms[k]]) for k in synonyms.keys() if k.startswith(prefix)])
+        if pre is not None:
+            def drop_prefix(pr, s):
+                return s[len(pr):]
+            pref = '\\\\' + pre + '\\' + ''.join(list_chars)
+            completions = [(pref + drop_prefix(pre, k) + '\t' + maths[k], '\\' + pref + drop_prefix(pre, k)) for k in maths.keys() if k.startswith(pre)]
+            completions.extend([(pref + drop_prefix(pre, k) + '\t' + maths[synonyms[k]], '\\' + pref + drop_prefix(pre, k)) for k in synonyms.keys() if k.startswith(pre)])
+        else:
+            completions = [('\\' + k + '\t' + maths[k], maths[k]) for k in maths.keys() if k.startswith(p[0])]
+            completions.extend([('\\' + k + '\t' + maths[synonyms[k]], maths[synonyms[k]]) for k in synonyms.keys() if k.startswith(p[0])])
         return completions
 
     def on_query_context(self, view, key, operator, operand, match_all):
