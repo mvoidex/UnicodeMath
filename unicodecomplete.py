@@ -83,6 +83,15 @@ def code_by_symbol(sym):
         return u'U%08X' % u
     return None
 
+def is_script(s):
+    """
+    Subscript _... or superscript ^...
+    """
+    return s.startswith('_') or s.startswith('^')
+
+def get_script(s):
+    return (s[0], list(s[1:]))
+
 def can_convert(view):
     """
     Determines if there are any regions, where symbol can be converted
@@ -98,6 +107,10 @@ def can_convert(view):
                 rep = symbol_by_name(p[0])
                 if rep:
                     return True
+                if get_settings().get('convert_sub_super', True) and is_script(p[0]):
+                    (script_char, chars) = get_script(p[0])
+                    if all([symbol_by_name(script_char + ch) for ch in chars]):
+                        return True
                 if get_settings().get('convert_codes', True):
                     rep = symbol_by_code(p[0])
                     if rep:
@@ -142,9 +155,16 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
                     rep = symbol_by_name(p[0])
                     if rep:
                         self.view.replace(edit, p[1], rep)
+                        continue
+                    if is_script(p[0]):
+                        (script_char, chars) = get_script(p[0])
+                        rep = ''.join([symbol_by_name(script_char + ch) for ch in chars])
+                        self.view.replace(edit, p[1], rep)
+                        continue
                     rep = symbol_by_code(p[0])
                     if rep:
                         self.view.replace(edit, p[1], rep)
+                        continue
 
 class UnicodeMathInsertSpace(sublime_plugin.TextCommand):
     def run(self, edit):

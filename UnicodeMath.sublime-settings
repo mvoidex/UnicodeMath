@@ -15,5 +15,7 @@
     // Syntaxes to ignore
     "ignore_syntax": ["latex"],
     // Convert \uXXXX and \UXXXXXXXX to symbol
-    "convert_codes": true
+    "convert_codes": true,
+    // Convert multichar subscript and superscript \^abc → \^a\^b\^c and \_abc → \_a\_b\_c
+    "convert_sub_super": true
 }
