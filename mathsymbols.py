@@ -2627,6 +2627,9 @@ def make_synonyms():
         "~/=": "nsime",
         "||": "Vert",
         "|->": "mapsto",
+        "`": "prime",
+        ">=": "geq",
+        "<=": "leq",
 
         "christmastree": "fir",
 
