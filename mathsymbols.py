@@ -2588,7 +2588,27 @@ def make_maths():
         "Box": u"\u2610",
         "Hbar": u"\u0126",
         "hbar": u"\u0127",
-        "eth": u"\u00f0"
+        "eth": u"\u00f0",
+
+        "fraction_1_2": u"\u00bd",
+        "fraction_1_4": u"\u00bc",
+        "fraction_3_4": u"\u00be",
+        "fraction_1_7": u"\u2150",
+        "fraction_1_9": u"\u2151",
+        "fraction_1_10": u"\u2152",
+        "fraction_1_3": u"\u2153",
+        "fraction_2_3": u"\u2154",
+        "fraction_1_5": u"\u2155",
+        "fraction_2_5": u"\u2156",
+        "fraction_3_5": u"\u2157",
+        "fraction_4_5": u"\u2158",
+        "fraction_1_6": u"\u2159",
+        "fraction_5_6": u"\u215a",
+        "fraction_1_8": u"\u215b",
+        "fraction_3_8": u"\u215c",
+        "fraction_5_8": u"\u215d",
+        "fraction_7_8": u"\u215e",
+        "fraction_1_": u"\u215f"
     }
     return result
 
@@ -2714,7 +2734,27 @@ def make_synonyms():
         "varrho": "upvarrho",
         "varTheta": "upvarTheta",
         "varepsilon": "upvarepsilon",
-        "backepsilon": "upbackepsilon"
+        "backepsilon": "upbackepsilon",
+
+        "1/2": "fraction_1_2",
+        "1/4": "fraction_1_4",
+        "3/4": "fraction_3_4",
+        "1/7": "fraction_1_7",
+        "1/9": "fraction_1_9",
+        "1/10": "fraction_1_10",
+        "1/3": "fraction_1_3",
+        "2/3": "fraction_2_3",
+        "1/5": "fraction_1_5",
+        "2/5": "fraction_2_5",
+        "3/5": "fraction_3_5",
+        "4/5": "fraction_4_5",
+        "1/6": "fraction_1_6",
+        "5/6": "fraction_5_6",
+        "1/8": "fraction_1_8",
+        "3/8": "fraction_3_8",
+        "5/8": "fraction_5_8",
+        "7/8": "fraction_7_8",
+        "1/": "fraction_1_"
     }
     return result
 
