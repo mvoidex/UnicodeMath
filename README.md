@@ -79,3 +79,23 @@ Enable (default) or disable converting list of chars with prefix:
 <pre>
 	"convert_list": true
 </pre>
+
+Font settings
+---
+
+I prefer using Lucida Sans Unicode, it contains many unicode symbols.
+
+<pre>
+	"font_face": "Lucida Sans Unicode"
+</pre>
+
+I also recommend to set `directwrite` font option on Windows to allow font-substition for unknown unicode symbols
+
+<pre>
+	"font_options": ["directwrite"]
+</pre>
+
+Symbols table
+---
+
+You can see all predefined symbols and synonyms (here)[table.md]
