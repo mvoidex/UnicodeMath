@@ -89,7 +89,7 @@ I prefer using Lucida Sans Unicode, it contains many unicode symbols.
 	"font_face": "Lucida Sans Unicode"
 </pre>
 
-I also recommend to set `directwrite` font option on Windows to allow font-substition for unknown unicode symbols
+I also recommend to set `directwrite` font option on Windows to allow font-substitution for unknown unicode symbols
 
 <pre>
 	"font_options": ["directwrite"]
