@@ -98,4 +98,4 @@ I also recommend to set `directwrite` font option on Windows to allow font-subst
 Symbols table
 ---
 
-You can see all predefined symbols and synonyms (here)[table.md]
+You can see all predefined symbols and synonyms in this [table](table.md)
