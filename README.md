@@ -30,9 +30,9 @@ Hex-code of unicode symbol can be also used in one of these formats:
 \U0001d7be
 </pre>
 
-To explicitly convert (or convert back) use command 'UnicodeMath: Swap'
+To explicitly convert (or convert back) use command **UnicodeMath: Swap**
 
-To select symbols from list, use command 'UnicodeMath: Insert'
+To select symbols from list, use command **UnicodeMath: Insert**
 
 Settings
 --------
