@@ -28,7 +28,7 @@ LIST_RE = re.compile(r'^(?P<prefix>[^\s\\]+)\\(?P<list>[^\s]*)$')
 UNICODE_LIST_PREFIX_RE = re.compile(r'.*(\\([^\s\\]+)\\([^\s]+))$')
 CODE_PREFIX_RE = re.compile(r'.*(u([\da-fA-F]{4}))$')
 LONGCODE_PREFIX_RE = re.compile(r'.*(U([\da-fA-F]{8}))')
-SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.tmLanguage')
+SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.(?:tmLanguage|sublime-syntax)')
 
 def get_unicode_prefix(view, location):
     """
