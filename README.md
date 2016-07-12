@@ -1,6 +1,8 @@
 UnicodeMath
 ===========
 
+[![Join the chat at https://gitter.im/mvoidex/UnicodeMath](https://badges.gitter.im/mvoidex/UnicodeMath.svg)](https://gitter.im/mvoidex/UnicodeMath?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Plugin for Sublime for inserting unicode math symbols
 
 Usage
