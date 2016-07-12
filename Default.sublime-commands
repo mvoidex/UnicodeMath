@@ -14,8 +14,17 @@
         }
     },
     {
-        "caption": "UnicodeMath: Swap",
-        "command": "unicode_math_swap"
+        "caption": "UnicodeMath: Convert",
+        "command": "unicode_math_convert"
+    },
+    {
+        "caption": "UnicodeMath: Convert Back",
+        "command": "unicode_math_convert_back"
+    },
+    {
+        "caption": "UnicodeMath: Convert Back (Code)",
+        "command": "unicode_math_convert_back",
+        "args": { "code": true }
     },
     {
         "caption": "UnicodeMath: Insert",

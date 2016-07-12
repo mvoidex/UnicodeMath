@@ -4,17 +4,16 @@ import re
 from sys import version
 
 if int(sublime.version()) < 3000:
-    from mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol, get_settings
+    from mathsymbols import *
 else:
-    from UnicodeMath.mathsymbols import maths, inverse_maths, synonyms, inverse_synonyms, symbol_by_name, names_by_symbol, get_settings
+    from UnicodeMath.mathsymbols import *
 
 PyV3 = version[0] == "3"
+
 
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
 
-def uchr(s):
-    return chr(s) if PyV3 else unichr(s)
 
 def get_line_contents(view, location):
     """
@@ -26,9 +25,8 @@ UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]*))$')
 LIST_PREFIX_RE = re.compile(r'.*(\\\\([^\s\\]+\\[^\s]*))$')
 LIST_RE = re.compile(r'^(?P<prefix>[^\s\\]+)\\(?P<list>[^\s]*)$')
 UNICODE_LIST_PREFIX_RE = re.compile(r'.*(\\([^\s\\]+)\\([^\s]+))$')
-CODE_PREFIX_RE = re.compile(r'.*(u([\da-fA-F]{4}))$')
-LONGCODE_PREFIX_RE = re.compile(r'.*(U([\da-fA-F]{8}))')
 SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.tmLanguage')
+
 
 def get_unicode_prefix(view, location):
     """
@@ -43,6 +41,7 @@ def get_unicode_prefix(view, location):
     else:
         return None
 
+
 def is_unicode_prefix(view, location):
     """
     Returns True if prefix at given location is prefixed with backslash
@@ -50,40 +49,6 @@ def is_unicode_prefix(view, location):
     cts = get_line_contents(view, location)
     return (UNICODE_PREFIX_RE.match(cts) is not None) or (LIST_PREFIX_RE.match(cts) is not None)
 
-def symbol_by_code(codestr):
-    """
-    Gets symbol by code string 'uXXXX' or 'UXXXXXXXX'
-    """
-    m = CODE_PREFIX_RE.match(codestr)
-    if m:
-        return uchr(int(m.groups()[1], base = 16))
-    m = LONGCODE_PREFIX_RE.match(codestr)
-    if m:
-        u = int(m.groups()[1], base = 16)
-        if PyV3 or u < 0xFFFF:
-            return uchr(u)
-        else:
-            a = u / 0x0400 + 0xd7c0
-            b = (u & 0x03ff) + 0xdc00
-            return unichr(a) + unichr(b)
-    return None
-
-def code_by_symbol(sym):
-    """
-    Get code string in format 'uXXXX' or 'UXXXXXXXX' by symbol
-    """
-    if len(sym) == 1:
-        c = ord(sym[0])
-        if c > 0xFFFF:
-            return u'U%08X' % c
-        else:
-            return u'u%04X' % c
-    if len(sym) == 2:
-        a = ord(sym[0])
-        b = ord(sym[1])
-        u = (a - 0xd7c0) * 0x0400 + (b - 0xdc00)
-        return u'U%08X' % u
-    return None
 
 def is_script(s):
     """
@@ -91,8 +56,10 @@ def is_script(s):
     """
     return s.startswith('_') or s.startswith('^')
 
+
 def get_script(s):
     return (s[0], list(s[1:]))
+
 
 def get_list_prefix(s):
     # prefix\abc -> (prefix, [a, b, c])
@@ -100,6 +67,7 @@ def get_list_prefix(s):
     if not m:
         return (None, None)
     return (m.group('prefix'), list(m.group('list')))
+
 
 def can_convert(view):
     """
@@ -125,10 +93,11 @@ def can_convert(view):
                     if all([symbol_by_name(script_char + ch) for ch in chars]):
                         return True
                 if get_settings().get('convert_codes', True):
-                    rep = symbol_by_code(p[0])
+                    rep = symbol_by_code(u'\\' + p[0])
                     if rep:
                         return True
     return False
+
 
 def syntax_allowed(view):
     """
@@ -138,6 +107,29 @@ def syntax_allowed(view):
     if syntax_in_view and syntax_in_view.group('name').lower() in get_settings().get('ignore_syntax', []):
         return False
     return True
+
+
+def find_rev(view, r):
+    # Go through all prefixes starting from longest
+    # Returns prefix length and its names + possibly code
+    # Order:
+    #   - name - may not present
+    #   - synonyms... - may not presend
+    #   - code - always present
+    max_len = max(map(lambda v: len(v), maths.values()))
+    prefix = get_line_contents(view, r.end())
+
+    for i in reversed(range(1, max_len + 1)):
+        cur_pref = prefix[-i:]
+        if len(cur_pref) < i:
+            continue
+        names = list(map(lambda n: u'\\' + n, names_by_symbol(cur_pref)))
+        if names or i == 1:  # For prefix 1 (one symbol) there always exists code
+            names.append(u''.join([code_by_symbol(c) for c in cur_pref]))
+        if names:
+            region = sublime.Region(r.end() - i, r.end())
+            return (region, names)
+    return (r, [])
 
 
 class UnicodeMathComplete(sublime_plugin.EventListener):
@@ -169,6 +161,7 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
         else:
             return False
 
+
 class UnicodeMathConvert(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
@@ -189,22 +182,56 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
                         rep = ''.join([symbol_by_name(script_char + ch) for ch in chars])
                         self.view.replace(edit, p[1], rep)
                         continue
-                    rep = symbol_by_code(p[0])
+                    rep = symbol_by_code(u'\\' + p[0])
                     if rep:
                         self.view.replace(edit, p[1], rep)
                         continue
+
+
+class UnicodeMathConvertBack(sublime_plugin.TextCommand):
+    """
+    Convert symbols back to either name or code
+    """
+    def run(self, edit, code = False):
+        if len(self.view.sel()) == 1:
+            (region, names) = find_rev(self.view, self.view.sel()[0])
+            if code:
+                self.view.replace(edit, region, names[-1])
+            else:
+                if len(names) <= 2:  # name or name + code
+                    self.view.replace(edit, region, names[0])
+                else:
+                    self.region = region
+                    self.names = names
+                    self.view.window().show_quick_panel(self.names[:-1], self.on_done)
+        else:
+            for r in self.view.sel():
+                (region, names) = find_rev(self.view, r)
+                if names:
+                    self.view.replace(edit, region, names[-1] if code else names[0])
+
+    def on_done(self, idx):
+        if idx == -1:
+            return
+
+        self.view.run_command('unicode_math_replace_in_view', {
+            'replace_with': self.names[idx],
+            'begin': self.region.begin(),
+            'end': self.region.end()})
+
 
 class UnicodeMathInsertSpace(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
             self.view.insert(edit, r.a, " ")
 
+
 class UnicodeMathSwap(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
             upref = get_unicode_prefix(self.view, self.view.word(r).b)
             sym = symbol_by_name(upref[0]) if upref else None
-            symc = symbol_by_code(upref[0]) if upref else None
+            symc = symbol_by_code(u'\\' + upref[0]) if upref else None
             if upref and (sym or symc):
                 self.view.replace(edit, upref[1], sym or symc)
             elif r.b - r.a <= 1:
@@ -212,17 +239,22 @@ class UnicodeMathSwap(sublime_plugin.TextCommand):
                 usym = self.view.substr(u)
                 names = names_by_symbol(usym)
                 if not names:
-                    self.view.replace(edit, u, u'\\' + code_by_symbol(usym))
+                    self.view.replace(edit, u, code_by_symbol(usym))
                 else:
                     self.view.replace(edit, u, u'\\' + names[0])
 
+
 class UnicodeMathReplaceInView(sublime_plugin.TextCommand):
-    def run(self, edit, replace_with = None):
+    def run(self, edit, replace_with = None, begin = None, end = None):
         if not replace_with:
             return
 
-        for r in self.view.sel():
-            self.view.replace(edit, r, replace_with)
+        if begin is not None and end is not None:  # Excplicit region
+            self.view.replace(edit, sublime.Region(int(begin), int(end)), replace_with)
+        else:
+            for r in self.view.sel():
+                self.view.replace(edit, r, replace_with)
+
 
 class UnicodeMathInsert(sublime_plugin.WindowCommand):
     def run(self):
@@ -245,4 +277,4 @@ class UnicodeMathInsert(sublime_plugin.WindowCommand):
             return
 
         view.run_command('unicode_math_replace_in_view', {
-            'replace_with': self.symbols[idx] })
+            'replace_with': self.symbols[idx]})

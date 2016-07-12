@@ -6,11 +6,8 @@ Plugin for Sublime for inserting unicode math symbols
 Usage
 -----
 
-Input backslash and name of unicode symbol:
-<pre>
-\forall
-</pre>
-then insert space and text will be automatically converted to ∀<br>
+![Input](Images/Input.gif)
+Input backslash and name of unicode symbol (for example `\forall`) then insert space and text will be automatically converted to ∀<br>
 To insert space use `shift+space`
 
 There are also special way to convert subscripts and superscripts with several symbols, just input several symbols after `\_` or `\^`:
@@ -18,6 +15,7 @@ There are also special way to convert subscripts and superscripts with several s
 S\^1+2k → S¹⁺²ᵏ
 S\_1+2k → S₁₊₂ₖ
 </pre>
+![Script](Images/Script.gif)
 
 You can also convert list of chars with special prefix via `\\prefix\abc`, which will be equivalent to `\prefixa` `\prefixb` and `\prefixc`, for example:
 <pre>
@@ -28,9 +26,10 @@ Hex-code of unicode symbol can be also used in one of these formats:
 <pre>
 \u12ba
 \U0001d7be
+\U+1F1D1
 </pre>
 
-To explicitly convert (or convert back) use command **UnicodeMath: Swap**
+To explicitly convert (or convert back) use commands **UnicodeMath: Convert**, **UnicodeMath: Convert Back**, **UnicodeMath: Convert Back (Code)**
 
 To select symbols from list, use command **UnicodeMath: Insert**
 
@@ -42,7 +41,12 @@ You can add custom symbols into symbol-table in UnicodeMath settings (Preference
 <pre>
 	"symbols": {
 		"mysymbol": "\u0021",
-		"myothersymbol": "\u2080"
+		"myothersymbol": "\u2080",
+		"shortcode": "\\u0021", // code within string
+		"longcode": "\\U00000021",
+		"pluscode": "\\U+12345",
+		"manycodes": "\\U+12345\\u0020",
+		"codes-and-text": "Foo\\U+12345"
 	}
 </pre>
 
@@ -98,4 +102,4 @@ I also recommend to set `directwrite` font option on Windows to allow font-subst
 Symbols table
 ---
 
-You can see all predefined symbols and synonyms in this [table](table.md)
+You can see all predefined [emoji](emoji.md), [symbols and synonyms](table.md)
