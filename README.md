@@ -14,6 +14,7 @@ Emoji
 -----
 
 Emoji's names starts with colon (`:`)
+
 ![Emoji](Images/Emoji.gif)
 
 Special
