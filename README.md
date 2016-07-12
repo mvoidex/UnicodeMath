@@ -7,6 +7,7 @@ Usage
 -----
 
 ![Input](Images/Input.gif)
+
 Input backslash and name of unicode symbol (for example `\forall`) then insert space and text will be automatically converted to ∀<br>
 To insert space use `shift+space`
 
