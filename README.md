@@ -10,6 +10,15 @@ Usage
 Input backslash and name of unicode symbol (for example `\forall`) then insert space and text will be automatically converted to ∀<br>
 To insert space use `shift+space`
 
+Emoji
+-----
+
+Emoji's names starts with colon (`:`)
+![Emoji](Images/Emoji.gif)
+
+Special
+---
+
 There are also special way to convert subscripts and superscripts with several symbols, just input several symbols after `\_` or `\^`:
 <pre>
 S\^1+2k → S¹⁺²ᵏ
@@ -21,6 +30,9 @@ You can also convert list of chars with special prefix via `\\prefix\abc`, which
 <pre>
 \\Bbb\ABCabc → 𝔸𝔹ℂ𝕒𝕓𝕔
 </pre>
+
+Hex-code
+---
 
 Hex-code of unicode symbol can be also used in one of these formats:
 <pre>
