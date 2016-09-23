@@ -138,8 +138,6 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
         if not p:
             return
 
-        log(p[0])
-
         (pre, list_chars) = get_list_prefix(p[0])
         # returns completions
         if pre is not None:
@@ -151,7 +149,7 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
         else:
             completions = [('\\' + k + '\t' + maths[k], maths[k]) for k in maths.keys() if k.startswith(p[0])]
             completions.extend([('\\' + k + '\t' + maths[synonyms[k]], maths[synonyms[k]]) for k in synonyms.keys() if k.startswith(p[0])])
-        return completions
+        return sorted(completions, key = lambda k: k[0])
 
     def on_query_context(self, view, key, operator, operand, match_all):
         if key == 'unicode_math_syntax_allowed':
