@@ -59,7 +59,7 @@ Settings
 
 You can add custom symbols into symbol-table in UnicodeMath settings (Preferences → Package Settings → UnicodeMath → Settings — User or command "Preferences: UnicodeMath Settings — User")
 
-(Note: don't use characters fom `word_separators`, see #19 issue for details)
+(Note: don't use characters fom `word_separators`, see [#19](https://github.com/mvoidex/UnicodeMath/issues/19) issue for details)
 
 <pre>
 	"symbols": {
