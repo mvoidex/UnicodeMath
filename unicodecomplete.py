@@ -162,10 +162,31 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
 
 class UnicodeMathConvert(sublime_plugin.TextCommand):
     def run(self, edit):
+        region=self.view.sel()[0]
+        if region.a != region.b:
+            s = self.view.substr(region)
+            self.view.sel().clear()
+            i=0
+            while i<len(s):
+                if s[i]=='\\':
+                    if i<len(s)-1 and s[i+1]=='\\':
+                        i=i+2
+                        continue
+                    j=i+1
+                    while j<len(s):
+                        if s[j]==' ' or s[j]=='\n' or s[j]=='\\':
+                            break
+                        j=j+1
+                    self.view.sel().add(sublime.Region(region.begin()+j,region.begin()+j))
+                    i=j
+                else:
+                    i=i+1
+            self.view.sel().add(sublime.Region(region.end(),region.end()))
         for r in self.view.sel():
             if r.a == r.b:
                 p = get_unicode_prefix(self.view, r.a)
                 if p:
+                    cnt=r.a-region.begin()
                     rep = symbol_by_name(p[0])
                     if rep:
                         self.view.replace(edit, p[1], rep)
@@ -184,7 +205,10 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
                     if rep:
                         self.view.replace(edit, p[1], rep)
                         continue
-
+        if region.a != region.b:
+            end=(self.view.sel()[-1]).a
+            self.view.sel().clear()
+            self.view.sel().add(sublime.Region(region.begin(),end))
 
 class UnicodeMathConvertBack(sublime_plugin.TextCommand):
     """
