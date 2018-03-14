@@ -50,7 +50,9 @@ Hex-code of unicode symbol can be also used in one of these formats:
 \U+1F1D1
 </pre>
 
-To explicitly convert (or convert back) use commands **UnicodeMath: Convert**, **UnicodeMath: Convert Back**, **UnicodeMath: Convert Back (Code)**
+To explicitly convert (or convert back) use commands **UnicodeMath: Convert**, **UnicodeMath: Convert Back**, **UnicodeMath: Convert Back (Code)**. Selection convert is also available:
+
+![SelectionConvert](Images/SelectionConvert.gif)
 
 To select symbols from list, use command **UnicodeMath: Insert**
 
