@@ -174,7 +174,7 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
                         continue
                     j=i+1
                     while j<len(s):
-                        if s[j]==' ' or s[j]=='\n' or s[j]=='\\':
+                        if s[j]==' ' or s[j]=='\n' or s[j]=='\\' or s[j]=='.' or s[j]==',':
                             break
                         j=j+1
                     self.view.sel().add(sublime.Region(region.begin()+j,region.begin()+j))
