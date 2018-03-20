@@ -11,6 +11,13 @@ else:
 PyV3 = version[0] == "3"
 
 
+UNICODE_SYMBOL_RE = re.compile(r'(?:\\)(?P<symbol>[^\s\\\.,]+)')
+UNICODE_RE = re.compile(r'(?:\\)(?:(?P<symbol>[^\s\\\.,]+)|(?:\\(?P<prefix>[^\s\\\.,]+)\\(?P<chars>[^\s\\\.,]+)))')
+UNICODE_SYMBOL_PREFIX_RE = re.compile(r'.*?' + UNICODE_SYMBOL_RE.pattern + r'$')
+UNICODE_PREFIX_RE = re.compile(r'.*?' + UNICODE_RE.pattern + r'$')
+SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.(?:tmLanguage|sublime-syntax)')
+
+
 def log(message):
     print(u'UnicodeMath: {0}'.format(message))
 
@@ -20,12 +27,6 @@ def get_line_contents(view, location):
     Returns the contents of the line at the given location
     """
     return view.substr(sublime.Region(view.line(location).a, location))
-
-UNICODE_PREFIX_RE = re.compile(r'.*(\\([^\s]*))$')
-LIST_PREFIX_RE = re.compile(r'.*(\\\\([^\s\\]+\\[^\s]*))$')
-LIST_RE = re.compile(r'^(?P<prefix>[^\s\\]+)\\(?P<list>[^\s]*)$')
-UNICODE_LIST_PREFIX_RE = re.compile(r'.*(\\([^\s\\]+)\\([^\s]+))$')
-SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.(?:tmLanguage|sublime-syntax)')
 
 
 def get_unicode_prefix(view, location):
@@ -69,6 +70,10 @@ def get_list_prefix(s):
     return (m.group('prefix'), list(m.group('list')))
 
 
+def enabled(name, default=True):
+    return get_settings().get(name, default)
+
+
 def can_convert(view):
     """
     Determines if there are any regions, where symbol can be converted
@@ -77,24 +82,28 @@ def can_convert(view):
     Some times (is it sublime bug?) on_modified called twice on every change, which makes
     hard to detect whether this on_modified was called as result of previous call of command
     """
+    prefix_re = UNICODE_PREFIX_RE if enabled('convert_list') else UNICODE_SYMBOL_PREFIX_RE
     for r in view.sel():
         if r.a == r.b:
-            p = get_unicode_prefix(view, r.a)
-            if p:
-                rep = symbol_by_name(p[0])
-                if rep:
-                    return True
-                (pre, list_chars) = get_list_prefix(p[0])
-                if get_settings().get('convert_list', True) and pre is not None:
-                    if all([symbol_by_name(pre + ch) for ch in list_chars]):
+            line = get_line_contents(view, r.a)
+            m = prefix_re.match(line)
+            if m:
+                symbol = m.groupdict().get('symbol')
+                prefix = m.groupdict().get('prefix')
+                chars = m.groupdict().get('chars')
+
+                if symbol is not None:
+                    if symbol_by_name(symbol):
                         return True
-                if get_settings().get('convert_sub_super', True) and is_script(p[0]):
-                    (script_char, chars) = get_script(p[0])
-                    if all([symbol_by_name(script_char + ch) for ch in chars]):
-                        return True
-                if get_settings().get('convert_codes', True):
-                    rep = symbol_by_code(u'\\' + p[0])
-                    if rep:
+                    elif enabled('convert_sub_super') and is_script(symbol):
+                        script_char, chars = get_script(symbol)
+                        if all([symbol_by_name(script_char + ch) for ch in chars]):
+                            return True
+                    elif enabled('convert_codes'):
+                        if symbol_by_code(u'\\' + symbol):
+                            return True
+                elif prefix is not None:
+                    if all([symbol_by_name(prefix + ch) for ch in chars]):
                         return True
     return False
 
@@ -134,22 +143,27 @@ def find_rev(view, r):
 
 class UnicodeMathComplete(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
-        p = get_unicode_prefix(view, locations[0])
-        if not p:
+        prefix_re = UNICODE_PREFIX_RE if enabled('convert_list') else UNICODE_SYMBOL_PREFIX_RE
+        line = get_line_contents(view, locations[0])
+        m = prefix_re.match(line)
+        if not m:
             return
 
-        (pre, list_chars) = get_list_prefix(p[0])
+        symbol = m.groupdict().get('symbol')
+        pre = m.groupdict().get('prefix')
+        chars = m.groupdict().get('chars')
+
         # returns completions
         if pre is not None:
             def drop_prefix(pr, s):
                 return s[len(pr):]
-            pref = '\\\\' + pre + '\\' + ''.join(list_chars)
+            pref = '\\\\' + pre + '\\' + ''.join(chars)
             completions = [(pref + drop_prefix(pre, k) + '\t' + maths[k], '\\' + pref + drop_prefix(pre, k)) for k in maths.keys() if k.startswith(pre)]
             completions.extend([(pref + drop_prefix(pre, k) + '\t' + maths[synonyms[k]], '\\' + pref + drop_prefix(pre, k)) for k in synonyms.keys() if k.startswith(pre)])
         else:
-            completions = [('\\' + k + '\t' + maths[k], maths[k]) for k in maths.keys() if k.startswith(p[0])]
-            completions.extend([('\\' + k + '\t' + maths[synonyms[k]], maths[synonyms[k]]) for k in synonyms.keys() if k.startswith(p[0])])
-        return sorted(completions, key = lambda k: k[0])
+            completions = [('\\' + k + '\t' + maths[k], maths[k]) for k in maths.keys() if k.startswith(symbol)]
+            completions.extend([('\\' + k + '\t' + maths[synonyms[k]], maths[synonyms[k]]) for k in synonyms.keys() if k.startswith(symbol)])
+        return sorted(completions, key=lambda k: k[0])
 
     def on_query_context(self, view, key, operator, operand, match_all):
         if key == 'unicode_math_syntax_allowed':
@@ -162,35 +176,66 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
 
 class UnicodeMathConvert(sublime_plugin.TextCommand):
     def run(self, edit):
+        self.prefix_re = UNICODE_PREFIX_RE if enabled('convert_list') else UNICODE_SYMBOL_PREFIX_RE
+        self.search_re = UNICODE_RE if enabled('convert_list') else UNICODE_SYMBOL_RE
+
         for r in self.view.sel():
             if r.a == r.b:
-                p = get_unicode_prefix(self.view, r.a)
-                if p:
-                    rep = symbol_by_name(p[0])
-                    if rep:
-                        self.view.replace(edit, p[1], rep)
-                        continue
-                    (pre, list_chars) = get_list_prefix(p[0])
-                    if pre is not None:
-                        rep = ''.join([symbol_by_name(pre + ch) for ch in list_chars])
-                        self.view.replace(edit, p[1], rep)
-                        continue
-                    if is_script(p[0]):
-                        (script_char, chars) = get_script(p[0])
-                        rep = ''.join([symbol_by_name(script_char + ch) for ch in chars])
-                        self.view.replace(edit, p[1], rep)
-                        continue
-                    rep = symbol_by_code(u'\\' + p[0])
-                    if rep:
-                        self.view.replace(edit, p[1], rep)
-                        continue
+                self.convert_prefix(edit, r)
+            else:
+                self.convert_selection(edit, r)
+
+    def convert_prefix(self, edit, r):
+        line = get_line_contents(self.view, r.a)
+        m = self.prefix_re.match(line)
+        if m:
+            rep = self.replacement(m)
+            if rep is not None:
+                self.view.replace(edit, sublime.Region(r.begin() - (m.end() - m.start()), r.begin()), rep)
+
+    def convert_selection(self, edit, r):
+        contents = self.view.substr(r)
+        replaces = []
+        # collect replacements as pairs (region, string to replace with)
+        for m in self.search_re.finditer(contents):
+            rep = self.replacement(m)
+            if rep is not None:
+                replaces.append((sublime.Region(r.begin() + m.start(), r.begin() + m.end()), rep))
+        # apply all replacements
+        offset = 0
+        for reg, rep in replaces:
+            self.view.replace(edit, sublime.Region(reg.begin() + offset, reg.end() + offset), rep)
+            offset += len(rep) - reg.size()
+
+    def replacement(self, m):
+        symbol = m.groupdict().get('symbol')
+        prefix = m.groupdict().get('prefix')
+        chars = m.groupdict().get('chars')
+
+        if symbol is not None:
+            rep = symbol_by_name(symbol)
+            if rep is None:
+                if enabled('convert_sub_super') and is_script(symbol):
+                    script_char, chars = get_script(symbol)
+                    reps = [symbol_by_name(script_char + ch) for ch in chars]
+                    if all(reps):
+                        rep = ''.join(reps)
+            if rep is None:
+                if enabled('convert_codes'):
+                    rep = symbol_by_code(u'\\' + symbol)
+        elif prefix is not None:
+            reps = [symbol_by_name(prefix + ch) for ch in chars]
+            if all(reps):
+                rep = ''.join(reps)
+
+        return rep
 
 
 class UnicodeMathConvertBack(sublime_plugin.TextCommand):
     """
     Convert symbols back to either name or code
     """
-    def run(self, edit, code = False):
+    def run(self, edit, code=False):
         if len(self.view.sel()) == 1:
             (region, names) = find_rev(self.view, self.view.sel()[0])
             if code:
@@ -243,7 +288,7 @@ class UnicodeMathSwap(sublime_plugin.TextCommand):
 
 
 class UnicodeMathReplaceInView(sublime_plugin.TextCommand):
-    def run(self, edit, replace_with = None, begin = None, end = None):
+    def run(self, edit, replace_with=None, begin=None, end=None):
         if not replace_with:
             return
 
