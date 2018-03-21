@@ -29,28 +29,6 @@ def get_line_contents(view, location):
     return view.substr(sublime.Region(view.line(location).a, location))
 
 
-def get_unicode_prefix(view, location):
-    """
-    Returns unicode prefix at given location and it's region
-    or None if there is no unicode prefix
-    """
-    cts = get_line_contents(view, location)
-    res = LIST_PREFIX_RE.match(cts) or UNICODE_PREFIX_RE.match(cts)
-    if res:
-        (full_, pref_) = res.groups()
-        return (pref_, sublime.Region(location - len(full_), location))
-    else:
-        return None
-
-
-def is_unicode_prefix(view, location):
-    """
-    Returns True if prefix at given location is prefixed with backslash
-    """
-    cts = get_line_contents(view, location)
-    return (UNICODE_PREFIX_RE.match(cts) is not None) or (LIST_PREFIX_RE.match(cts) is not None)
-
-
 def is_script(s):
     """
     Subscript _... or superscript ^...
@@ -60,14 +38,6 @@ def is_script(s):
 
 def get_script(s):
     return (s[0], list(s[1:]))
-
-
-def get_list_prefix(s):
-    # prefix\abc -> (prefix, [a, b, c])
-    m = LIST_RE.match(s)
-    if not m:
-        return (None, None)
-    return (m.group('prefix'), list(m.group('list')))
 
 
 def enabled(name, default=True):
@@ -267,24 +237,6 @@ class UnicodeMathInsertSpace(sublime_plugin.TextCommand):
     def run(self, edit):
         for r in self.view.sel():
             self.view.insert(edit, r.a, " ")
-
-
-class UnicodeMathSwap(sublime_plugin.TextCommand):
-    def run(self, edit):
-        for r in self.view.sel():
-            upref = get_unicode_prefix(self.view, self.view.word(r).b)
-            sym = symbol_by_name(upref[0]) if upref else None
-            symc = symbol_by_code(u'\\' + upref[0]) if upref else None
-            if upref and (sym or symc):
-                self.view.replace(edit, upref[1], sym or symc)
-            elif r.b - r.a <= 1:
-                u = sublime.Region(r.b - 1, r.b)
-                usym = self.view.substr(u)
-                names = names_by_symbol(usym)
-                if not names:
-                    self.view.replace(edit, u, code_by_symbol(usym))
-                else:
-                    self.view.replace(edit, u, u'\\' + names[0])
 
 
 class UnicodeMathReplaceInView(sublime_plugin.TextCommand):
