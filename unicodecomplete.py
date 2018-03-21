@@ -13,8 +13,8 @@ PyV3 = version[0] == "3"
 
 UNICODE_SYMBOL_RE = re.compile(r'(?:\\)(?P<symbol>[^\s\\\.,]+)')
 UNICODE_RE = re.compile(r'(?:\\)(?:(?P<symbol>[^\s\\\.,]+)|(?:\\(?P<prefix>[^\s\\\.,]+)\\(?P<chars>[^\s\\\.,]+)))')
-UNICODE_SYMBOL_PREFIX_RE = re.compile(r'.*?' + UNICODE_SYMBOL_RE.pattern + r'$')
-UNICODE_PREFIX_RE = re.compile(r'.*?' + UNICODE_RE.pattern + r'$')
+UNICODE_SYMBOL_PREFIX_RE = re.compile(UNICODE_SYMBOL_RE.pattern + r'$')
+UNICODE_PREFIX_RE = re.compile(UNICODE_RE.pattern + r'$')
 SYNTAX_RE = re.compile(r'(.*?)/(?P<name>[^/]+)\.(?:tmLanguage|sublime-syntax)')
 
 
@@ -86,7 +86,7 @@ def can_convert(view):
     for r in view.sel():
         if r.a == r.b:
             line = get_line_contents(view, r.a)
-            m = prefix_re.match(line)
+            m = prefix_re.search(line)
             if m:
                 symbol = m.groupdict().get('symbol')
                 prefix = m.groupdict().get('prefix')
@@ -145,7 +145,7 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
         prefix_re = UNICODE_PREFIX_RE if enabled('convert_list') else UNICODE_SYMBOL_PREFIX_RE
         line = get_line_contents(view, locations[0])
-        m = prefix_re.match(line)
+        m = prefix_re.search(line)
         if not m:
             return
 
@@ -187,7 +187,7 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
 
     def convert_prefix(self, edit, r):
         line = get_line_contents(self.view, r.a)
-        m = self.prefix_re.match(line)
+        m = self.prefix_re.search(line)
         if m:
             rep = self.replacement(m)
             if rep is not None:
