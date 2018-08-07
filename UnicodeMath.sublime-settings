@@ -1,4 +1,6 @@
 {
+    // Auto-convert on space (use `shift+space` to insert `space` in this case)
+    "convert_on_space": true,
     // Custom symbols
     // Use it for you symbols, for example:
     // {

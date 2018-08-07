@@ -140,6 +140,8 @@ class UnicodeMathComplete(sublime_plugin.EventListener):
             return syntax_allowed(view)
         elif key == 'unicode_math_can_convert':
             return can_convert(view)
+        elif key == 'unicode_math_convert_on_space_enabled':
+            return enabled('convert_on_space')
         else:
             return False
 

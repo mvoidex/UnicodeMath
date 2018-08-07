@@ -16,7 +16,8 @@ Usage
 ![Input](Images/Input.gif)
 
 Input backslash and name of unicode symbol (for example `\forall`) then insert space and text will be automatically converted to ∀<br>
-To insert space use `shift+space`
+To insert space use `shift+space`  
+You can disable conversion on space by setting `convert_on_space` to `false`.
 
 Emoji
 -----

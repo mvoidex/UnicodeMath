@@ -4886,7 +4886,7 @@ def symbol_by_code(codestr):
     """
     m = CODE_RE.search(codestr)
     if m and m.end() == len(codestr):
-        u = int(m.group(1) or m.group(2) or m.group(3), base = 16)
+        u = int(m.group(1) or m.group(2) or m.group(3), base=16)
         if PyV3 or u < 0xFFFF:
             return uchr(u)
         else:
@@ -4973,7 +4973,7 @@ def names_by_symbol(symbol):
     return res
 
 
-def symbol_by_name(name, exclude = None):
+def symbol_by_name(name, exclude=None):
     """
     Returns symbol by name or synonym or None
     exclude is used to prevent loops in synonyms
