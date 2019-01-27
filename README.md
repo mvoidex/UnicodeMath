@@ -10,6 +10,11 @@ UnicodeMath
 
 Plugin for Sublime for inserting unicode math symbols
 
+Installation
+---
+
+Install via [PackageControl](https://packagecontrol.io) or `git clone` in your Packages directory (Select `Preferences → Browse Packages...` to open right packages directory).
+
 Usage
 -----
 
