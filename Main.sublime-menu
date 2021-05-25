@@ -12,24 +12,11 @@
                 "children":
                 [
                     {
-                        "caption": "UnicodeMath",
-                        "children":
-                        [
-                            {
-                                "command": "open_file", "args":
-                                {
-                                    "file": "${packages}/UnicodeMath/UnicodeMath.sublime-settings"
-                                },
-                                "caption": "Settings – Default"
-                            },
-                            {
-                                "command": "open_file", "args":
-                                {
-                                    "file": "${packages}/User/UnicodeMath.sublime-settings"
-                                },
-                                "caption": "Settings – User"
-                            }
-                        ]
+                        "caption": "UnicodeMath Settings",
+                        "command": "edit_settings", "args":
+                        {
+                            "base_file": "${packages}/UnicodeMath/UnicodeMath.sublime-settings"
+                        },
                     }
                 ]
               }
