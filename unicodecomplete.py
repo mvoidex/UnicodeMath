@@ -113,6 +113,9 @@ def find_rev(view, r):
 
 class UnicodeMathComplete(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
+        if not syntax_allowed(view):
+            return
+
         prefix_re = UNICODE_PREFIX_RE if enabled('convert_list') else UNICODE_SYMBOL_PREFIX_RE
         line = get_line_contents(view, locations[0])
         m = prefix_re.search(line)
