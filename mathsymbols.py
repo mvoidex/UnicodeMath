@@ -1,5 +1,7 @@
 import sublime
+import bisect
 import re
+from itertools import chain
 from sys import version
 
 PyV3 = version[0] == "3"
@@ -4869,10 +4871,21 @@ def make_synonyms():
     }
     return result
 
-maths = {}
-synonyms = {}
-inverse_maths = {}
-inverse_synonyms = {}
+class Translation:
+    def __init__(self, initial_fun, inverse_fun):
+        self.initial_fun = initial_fun
+        self.inverse_fun = inverse_fun
+
+        self.direct = {}
+        self.direct_sorted = []
+        self.inverse = {}
+
+    def update(self, dict_mapping):
+        self.direct = self.initial_fun()
+        self.direct.update(dict((k, replace_codes(v)) for k, v in dict_mapping.items()))
+        self.direct_sorted = sorted(self.direct)
+        self.inverse = self.inverse_fun(self.direct)
+
 CODE_RE = re.compile(r'\\u([\da-fA-F]{4})|\\U([\da-fA-F]{8})|\\U\+([\da-fA-F]{4,8})')
 
 
@@ -4933,43 +4946,39 @@ def get_settings():
     return sublime.load_settings('UnicodeMath.sublime-settings')
 
 
-def update_and_subscribe(d, initd, inverse_update, key):
+def update_and_subscribe(tr, key):
     def refill():
-        d.clear()
-        d.update(initd())
-        d.update(dict((k, replace_codes(v)) for k, v in get_settings().get(key, {}).items()))
-        inverse_update()
+        tr.update(get_settings().get(key, {}))
     refill()
     get_settings().add_on_change(key, refill)
 
 
-def update_inverse_maths():
-    global inverse_maths
-    inverse_maths = dict((v, k) for k, v in maths.items())
+def make_inverse_maths(direct):
+    return dict((v, k) for k, v in direct.items())
 
 
-def update_inverse_synonyms():
-    global inverse_synonyms
+def make_inverse_synonyms(direct):
     inverse_synonyms = {}
-    for k, v in synonyms.items():
-        inverse_synonyms[v] = inverse_synonyms.get(v, [])
-        inverse_synonyms[v].append(k)
+    for k, v in direct.items():
+        inverse_synonyms.setdefault(v, []).append(k)
+    return inverse_synonyms
 
+maths = Translation(make_maths, make_inverse_maths)
+synonyms = Translation(make_synonyms, make_inverse_synonyms)
 
 def names_by_symbol(symbol):
     """
     Returns list of names by symbol specified, first element is name, others - synonyms
     If no symbol found, returns empty list
     """
-    global inverse_maths
-    global inverse_synonyms
+    global maths, synonyms
     res = []
-    name = inverse_maths.get(symbol, None)
+    name = maths.inverse.get(symbol, None)
     if not name:
         return res
     res.append(name)
     if name:
-        res.extend(inverse_synonyms.get(name, []))
+        res.extend(synonyms.inverse.get(name, []))
     return res
 
 
@@ -4981,23 +4990,46 @@ def symbol_by_name(name, exclude=None):
     """
     if exclude is None:
         exclude = []
-    global maths
-    global synonyms
+    global maths, synonyms
     if name in exclude:
         return None
-    if name in maths:
-        return maths[name]
-    if name in synonyms:
+    if name in maths.direct:
+        return maths.direct[name]
+    if name in synonyms.direct:
         exclude.append(name)
-        return symbol_by_name(synonyms[name], exclude)  # synonym may ref on other synonym
+        return symbol_by_name(synonyms.direct[name], exclude)  # synonym may ref on other synonym
     return None
 
+def extensions_of(sorted_strings, prefix):
+    """
+    Yields all of the strings in sorted_strings that start with prefix.
+    """
+
+    i = bisect.bisect_left(sorted_strings, prefix)
+    while i < len(sorted_strings) and sorted_strings[i].startswith(prefix):
+        yield sorted_strings[i]
+        i += 1
+
+def symbol_by_prefix(prefix, *, unique=False):
+    """
+    If the given string is a prefix of a one name or synonym, return the associated
+    symbol, otherwise None. If unique=True, return None when there is more than one match
+    """
+
+    # determine whether there are 2+ options without generating everything
+    options = chain(
+        extensions_of(maths.direct_sorted, prefix),
+        extensions_of(synonyms.direct_sorted, prefix)
+    )
+    hit1 = next(options, None)
+    hit2 = next(options, None)
+    if hit1 is not None and (not unique or hit2 is None):
+        return symbol_by_name(hit1)
 
 def plugin_loaded():
-    global maths
-    global synonyms
-    update_and_subscribe(maths, make_maths, update_inverse_maths, 'symbols')
-    update_and_subscribe(synonyms, make_synonyms, update_inverse_synonyms, 'synonyms')
+    global maths, synonyms
+    update_and_subscribe(maths, 'symbols')
+    update_and_subscribe(synonyms, 'synonyms')
 
 if int(sublime.version()) < 3000:
     plugin_loaded()

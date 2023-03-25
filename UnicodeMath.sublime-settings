@@ -22,5 +22,9 @@
     "convert_sub_super": true,
     // List-convert, \\prefix\abc → \prefixa\prefixb\prefixc, for example
     // \\Bbb\ABC → \BbbA\BbbB\BbbC → 𝔸𝔹ℂ
-    "convert_list": true
+    "convert_list": true,
+    // Convert instantly when an escape is complete, without pressing space
+    "convert_instantly": false,
+    // Treat a non-ambiguous prefix as a full symbol name
+    "accept_prefixes": false,
 }

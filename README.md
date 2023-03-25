@@ -62,6 +62,18 @@ To explicitly convert (or convert back) use commands **UnicodeMath: Convert**, *
 
 To select symbols from list, use command **UnicodeMath: Insert**
 
+Instant conversion
+------------------
+
+Instant conversion allows eager conversion of symbols in the following situations:
+
+1. When `\name` is typed, there is a symbol called `name`, and no other symbol starts with `name`;
+2. When `\nameX` is typed (for `X` any character), there is a symbol called `name`, but none that starts with `nameX`.
+
+The intent is to remove control keystrokes and get the same result as when typing LaTeX code; for instance typing `\delta \subseteq \pi(f)` with instant conversion enabled will input `δ ⊆ π(f)`.
+
+When using instant conversion it is recommended to disable `accept_prefixes`. `convert_on_space` can also be disabled to make a space after a symbol name use case 2 above instead of activating the conversion command.
+
 Settings
 --------
 
@@ -113,6 +125,18 @@ Enable (default) or disable converting list of chars with prefix:
 
 <pre>
 	"convert_list": true
+</pre>
+
+Enable or disable (default) instant conversion:
+
+<pre>
+	"convert_instantly": true
+</pre>
+
+Enable or disable (default) treating a non-ambiguous prefix of a symbol name as the full name:
+
+<pre>
+	"accept_prefixes": true
 </pre>
 
 Font settings
