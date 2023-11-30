@@ -27,4 +27,6 @@
     "convert_instantly": false,
     // Treat a non-ambiguous prefix as a full symbol name
     "accept_prefixes": false,
+    // Insert a trailing space after symbol insertation
+    "trailing_space": false,
 }

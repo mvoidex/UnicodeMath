@@ -207,6 +207,8 @@ class UnicodeMathConvert(sublime_plugin.TextCommand):
         if m:
             rep = replacement(m, instant)
             if rep is not None:
+                if enabled('trailing_space'):
+                    rep += " "
                 self.view.replace(edit, sublime.Region(r.begin() - (m.end() - m.start()), r.begin()), rep)
 
     def convert_selection(self, edit, r, instant):
